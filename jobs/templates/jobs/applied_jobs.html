@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}My Applications - Job Portal{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="bi bi-file-earmark-text"></i> My Job Applications</h2>
+            <p class="text-muted">Track the status of your job applications</p>
+            
+            {% if applications %}
+                <div class="row">
+                    {% for application in applications %}
+                        <div class="col-lg-6 col-xl-4 mb-4">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="card-title">{{ application.job.title }}</h5>
+                                        {% if application.status == 'pending' %}
+                                            <span class="badge bg-warning">{{ application.get_status_display }}</span>
+                                        {% elif application.status == 'reviewing' %}
+                                            <span class="badge bg-info">{{ application.get_status_display }}</span>
+                                        {% elif application.status == 'interviewed' %}
+                                            <span class="badge bg-primary">{{ application.get_status_display }}</span>
+                                        {% elif application.status == 'accepted' %}
+                                            <span class="badge bg-success">{{ application.get_status_display }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">{{ application.get_status_display }}</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <h6 class="card-subtitle mb-2 text-muted">
+                                        <i class="bi bi-building"></i> {{ application.job.company }}
+                                    </h6>
+                                    
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="bi bi-geo-alt"></i> {{ application.job.location }}
+                                        </small>
+                                    </p>
+                                    
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar"></i> Applied {{ application.applied_at|timesince }} ago
+                                        </small>
+                                    </p>
+                                    
+                                    {% if application.cover_letter %}
+                                        <p class="card-text">
+                                            <small><strong>Cover Letter:</strong></small><br>
+                                            <small>{{ application.cover_letter|truncatewords:15 }}</small>
+                                        </p>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="card-footer bg-transparent">
+                                    <a href="{% url 'jobs:job_detail' application.job.pk %}" class="btn btn-outline-primary btn-sm">
+                                        View Job <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if is_paginated %}
+                    <nav aria-label="Applications pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+                            
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                            </li>
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-file-earmark-text display-1 text-muted"></i>
+                    <h3 class="text-muted mt-3">No Applications Yet</h3>
+                    <p>You haven't applied to any jobs yet.</p>
+                    <a href="{% url 'jobs:job_list' %}" class="btn btn-primary">Browse Jobs</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
